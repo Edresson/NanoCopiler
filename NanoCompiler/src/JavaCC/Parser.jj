@@ -6,7 +6,7 @@ public class Parser {
   public static void main(String args []) throws ParseException {
     Parser parser = new Parser(System.in);
     while (true) {
-      System.out.println("Reading from standard input...");      System.out.print("Enter an expression like \"1+(2+3)*4;\" :");
+      System.out.println("Lendo entrada");      System.out.print("Enter an expression like \"1+(2+3)*4;\" :");
       try {
                 switch (Parser.one_line()) {
           case 0 :           System.out.println("OK.");          break;

@@ -9,7 +9,7 @@ public class Parser implements ParserConstants {
 
     while (true) {
 
-      System.out.println("Reading from standard input...");
+      System.out.println("Lendo entrada");
       System.out.print("Enter an expression like \u005c"1+(2+3)*4;\u005c" :");
 
       try {
