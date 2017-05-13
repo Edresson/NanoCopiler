@@ -1,0 +1,105 @@
+/**
+ * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
+ */options{  static = true;}PARSER_BEGIN(Parser)package javaCC;
+
+public class Parser {
+  public static void main(String args []) throws ParseException {
+    Parser parser = new Parser(System.in);
+    while (true) {
+      System.out.println("Lendo entrada");      System.out.print("Enter an expression like \"1+(2+3)*4;\" :");
+      try {
+                switch (Parser.one_line()) {
+          case 0 :           System.out.println("OK.");          break;
+          case 1 :           System.out.println("Goodbye.");          break;
+          default :           break;        }      } catch (Exception e) {
+        System.out.println("Exception: ");        System.out.println(e.getMessage());        Parser.ReInit(System.in);
+      } catch (Error e) {
+        System.out.println("Erro: ");        System.out.println(e.getMessage());        break;      }    }  }}PARSER_END(Parser)SKIP :{  " "| "\r"| "\t"| "\n"}TOKEN : /* OPERADORES */{
+  < APARENT : "(" >
+| < FPARENT : ")" >
+| < ACOLCH : "[" >
+| < FCOLCH : "]" >
+| < ACHAVE : "{" >
+| < FCHAVE : "}" >
+| < VIRGULA : "," >
+| < PTOVIRGULA : ";" >
+| < SOMA : "+" >| < SUB : "-" >| < MUL : "*" >| < DIV : "/" >| < IGUAL : "==" >
+| < DIFERENTE : "!=" >
+| < MAIOR : ">" >
+| < MAIORIGUAL : ">=" >
+| < MENOR : "<" >
+| < MENORIGUAL : "<=" >
+| < OR : "||" >
+| < AND : "&&" >
+| < NOT : "!" >
+| < ATRIBUICAO : "=" >
+| < ATRIBUICAO_SOMA : "+=" >
+| < ATRIBUICAO_SUB : "-=" >
+| < ATRIBUICAO_MUL : "*=" >
+| < ATRIBUICAO_DIV : "/=" >
+| < MOD : "%=" >
+| < TERN_ENTAO : "?" >
+| < TERN_SENAO : ":" >
+
+}
+TOKEN : /* PALAVRAS RESERVADAS */
+{
+  < STRING : "string" >
+| < INT : "int" >
+| < BOOL : "bool" >
+| < TRUE : "true" >
+| < FALSE : "false" >
+| < BREAK : "break" >
+| < FOR : "for" >
+| < WHILE : "while" >
+| < RETURN : "return" >
+| < IF : "if" >
+| < ELSE : "else" >
+
+}
+TOKEN : /* EXPRESSÕES REGULARES */{  < #DIGITO : ["0"-"9"] >
+| < #LETRA  : ["a"-"z","A"-"Z"]  >
+| < NUMERO 	: (< DIGITO >)+ >
+| < IDENTIFICADOR : (< LETRA > | "_")( < LETRA > | "_" | < DIGITO > )* >
+}
+int programa() :{}{  < APARENT > { return Token.APARENT }
+| < FPARENT > { return Token.APARENT }
+| < ACOLCH > { return Token.APARENT }
+| < FCOLCH > { return Token.APARENT }
+| < ACHAVE > { return Token.APARENT }
+| < FCHAVE > { return Token.APARENT }
+| < VIRGULA > { return Token.APARENT }
+| < PTOVIRGULA > { return Token.APARENT }
+| < SOMA > { return Token.APARENT }
+| < SUB > { return Token.APARENT }
+| < MUL > { return Token.APARENT }
+| < DIV > { return Token.APARENT }
+| < IGUAL > { return Token.APARENT }
+| < DIFERENTE > { return Token.APARENT }
+| < MAIOR > { return Token.APARENT }
+| < MAIORIGUAL > { return Token.APARENT }
+| < MENOR > { return Token.APARENT }
+| < MENORIGUAL > { return Token.APARENT }
+| < OR > { return Token.APARENT }
+| < AND > { return Token.APARENT }
+| < NOT > { return Token.APARENT }
+| < ATRIBUICAO > { return Token.APARENT }
+| < ATRIBUICAO_SOMA > { return Token.APARENT }
+| < ATRIBUICAO_SUB > { return Token.APARENT }
+| < ATRIBUICAO_MUL > { return Token.APARENT }
+| < ATRIBUICAO_DIV > { return Token.APARENT }
+| < MOD > { return Token.APARENT }
+| < TERN_ENTAO > { return Token.APARENT }
+| < TERN_SENAO > { return Token.APARENT }
+| < STRING > { return Token.APARENT }
+| < INT > { return Token.APARENT }
+| < BOOL > { return Token.APARENT }
+| < TRUE > { return Token.APARENT }
+| < FALSE > { return Token.APARENT }
+| < BREAK > { return Token.APARENT }
+| < FOR > { return Token.APARENT }
+| < WHILE > { return Token.APARENT }
+| < RETURN > { return Token.APARENT }
+| < IF > { return Token.APARENT }
+| < ELSE > { return Token.APARENT }
+}
