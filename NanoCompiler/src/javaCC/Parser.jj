@@ -1,20 +1,77 @@
 /**
  * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
- */options{  static = true;}PARSER_BEGIN(Parser)package javaCC;
+ */
+options
+{
+  static = true;
+}
 
-public class Parser {
-  public static void main(String args []) throws ParseException {
-    Parser parser = new Parser(System.in);
-    while (true) {
-      System.out.println("Lendo entrada");      System.out.print("Enter an expression like \"1+(2+3)*4;\" :");
+PARSER_BEGIN(Parser)
+package javaCC;
+
+public class Parser {
+
+  public static void main(String args []) throws ParseException {
+
+    Parser parser = new Parser(System.in);
+    while (true) {
+
+      System.out.println("Leitura de tokens:");
+      System.out.print("Digite um token qualquer: (para terminar digite ';')");
+
       try {
-                switch (Parser.one_line()) {
-          case 0 :           System.out.println("OK.");          break;
-          case 1 :           System.out.println("Goodbye.");          break;
-          default :           break;        }      } catch (Exception e) {
-        System.out.println("Exception: ");        System.out.println(e.getMessage());        Parser.ReInit(System.in);
-      } catch (Error e) {
-        System.out.println("Erro: ");        System.out.println(e.getMessage());        break;      }    }  }}PARSER_END(Parser)SKIP :{  " "| "\r"| "\t"| "\n"}TOKEN : /* OPERADORES */{
+
+        switch (Parser.program()) {
+          case MOD : 
+	          System.out.println("Token lido: " + Tok.MOD.descricao());
+	          break;
+          case STRING : 
+	          System.out.println("Token lido: " + Tok.STRING.descricao());
+	          break;
+		  case SOMA : 
+	          System.out.println("Token lido: " + Tok.SOMA.descricao() + "\n\n");
+	          break;
+	      case SUB : 
+	          System.out.println("Token lido: " + Tok.SUB.descricao() + "\n\n");
+	          break;
+	      case DIV : 
+	          System.out.println("Token lido: " + Tok.DIV.descricao() + "\n\n");
+	          break;
+	      case MUL : 
+	          System.out.println("Token lido: " + Tok.MUL.descricao() + "\n\n");
+	          break;
+          default : 
+          break;
+
+        }
+      } catch (Exception e) {
+
+        System.out.println("NOK.");
+        System.out.println(e.getMessage());
+        Parser.ReInit(System.in);
+      }
+      catch (Error e) {
+
+        System.out.println("Oops.");
+        System.out.println(e.getMessage());
+        break;
+      }
+    }
+  }
+}
+
+PARSER_END(Parser)
+
+SKIP :
+{
+  " "
+| "\r"
+| "\t"
+| "\n"
+}
+
+TOKEN : /* OPERATORS */
+{
   < APARENT : "(" >
 | < FPARENT : ")" >
 | < ACOLCH : "[" >
@@ -23,7 +80,11 @@ public class Parser {
 | < FCHAVE : "}" >
 | < VIRGULA : "," >
 | < PTOVIRGULA : ";" >
-| < SOMA : "+" >| < SUB : "-" >| < MUL : "*" >| < DIV : "/" >| < IGUAL : "==" >
+| < SOMA : "+" >
+| < SUB : "-" >
+| < MUL : "*" >
+| < DIV : "/" >
+| < IGUAL : "==" >
 | < DIFERENTE : "!=" >
 | < MAIOR : ">" >
 | < MAIORIGUAL : ">=" >
@@ -41,7 +102,8 @@ public class Parser {
 | < TERN_ENTAO : "?" >
 | < TERN_SENAO : ":" >
 
-}
+}
+
 TOKEN : /* PALAVRAS RESERVADAS */
 {
   < STRING : "string" >
@@ -57,49 +119,58 @@ TOKEN : /* PALAVRAS RESERVADAS */
 | < ELSE : "else" >
 
 }
-TOKEN : /* EXPRESSÕES REGULARES */{  < #DIGITO : ["0"-"9"] >
+
+TOKEN : /* EXPRESSÕES REGULARES */
+{
+  < #DIGITO : ["0"-"9"] >
 | < #LETRA  : ["a"-"z","A"-"Z"]  >
 | < NUMERO 	: (< DIGITO >)+ >
-| < IDENTIFICADOR : (< LETRA > | "_")( < LETRA > | "_" | < DIGITO > )* >
-}
-int programa() :{}{  < APARENT > { return Token.APARENT }
-| < FPARENT > { return Token.APARENT }
-| < ACOLCH > { return Token.APARENT }
-| < FCOLCH > { return Token.APARENT }
-| < ACHAVE > { return Token.APARENT }
-| < FCHAVE > { return Token.APARENT }
-| < VIRGULA > { return Token.APARENT }
-| < PTOVIRGULA > { return Token.APARENT }
-| < SOMA > { return Token.APARENT }
-| < SUB > { return Token.APARENT }
-| < MUL > { return Token.APARENT }
-| < DIV > { return Token.APARENT }
-| < IGUAL > { return Token.APARENT }
-| < DIFERENTE > { return Token.APARENT }
-| < MAIOR > { return Token.APARENT }
-| < MAIORIGUAL > { return Token.APARENT }
-| < MENOR > { return Token.APARENT }
-| < MENORIGUAL > { return Token.APARENT }
-| < OR > { return Token.APARENT }
-| < AND > { return Token.APARENT }
-| < NOT > { return Token.APARENT }
-| < ATRIBUICAO > { return Token.APARENT }
-| < ATRIBUICAO_SOMA > { return Token.APARENT }
-| < ATRIBUICAO_SUB > { return Token.APARENT }
-| < ATRIBUICAO_MUL > { return Token.APARENT }
-| < ATRIBUICAO_DIV > { return Token.APARENT }
-| < MOD > { return Token.APARENT }
-| < TERN_ENTAO > { return Token.APARENT }
-| < TERN_SENAO > { return Token.APARENT }
-| < STRING > { return Token.APARENT }
-| < INT > { return Token.APARENT }
-| < BOOL > { return Token.APARENT }
-| < TRUE > { return Token.APARENT }
-| < FALSE > { return Token.APARENT }
-| < BREAK > { return Token.APARENT }
-| < FOR > { return Token.APARENT }
-| < WHILE > { return Token.APARENT }
-| < RETURN > { return Token.APARENT }
-| < IF > { return Token.APARENT }
-| < ELSE > { return Token.APARENT }
-}
+| < IDENTIFICADOR : (< LETRA > | "_")( < LETRA > | "_" | < DIGITO > )* >
+
+}
+
+Tok program() :
+{}
+{
+  < APARENT > { return Tok.APARENT; }
+| < FPARENT > { return Tok.FPARENT; }
+| < ACOLCH > { return Tok.ACOLCH; }
+| < FCOLCH > { return Tok.FCOLCH; }
+| < ACHAVE > { return Tok.ACHAVE; }
+| < FCHAVE > { return Tok.FCHAVE; }
+| < VIRGULA > { return Tok.VIRGULA; }
+| < PTOVIRGULA > { return Tok.PTOVIRGULA; }
+| < SOMA > { return Tok.SOMA; }
+| < SUB > { return Tok.SUB; }
+| < MUL > { return Tok.MUL; }
+| < DIV > { return Tok.DIV; }
+| < IGUAL > { return Tok.IGUAL; }
+| < DIFERENTE > { return Tok.DIFERENTE; }
+| < MAIOR > { return Tok.MAIOR; }
+| < MAIORIGUAL > { return Tok.MAIORIGUAL; }
+| < MENOR > { return Tok.MENOR; }
+| < MENORIGUAL > { return Tok.MENORIGUAL; }
+| < OR > { return Tok.OR; }
+| < AND > { return Tok.AND; }
+| < NOT > { return Tok.NOT; }
+| < ATRIBUICAO > { return Tok.ATRIBUICAO; }
+| < ATRIBUICAO_SOMA > { return Tok.ATRIBUICAO_SOMA; }
+| < ATRIBUICAO_SUB > { return Tok.ATRIBUICAO_SUB; }
+| < ATRIBUICAO_MUL > { return Tok.ATRIBUICAO_MUL; }
+| < ATRIBUICAO_DIV > { return Tok.ATRIBUICAO_DIV; }
+| < MOD > { return Tok.MOD; }
+| < TERN_ENTAO > { return Tok.TERN_ENTAO; }
+| < TERN_SENAO > { return Tok.TERN_SENAO; }
+| < STRING > { return Tok.STRING; }
+| < INT > { return Tok.INT; }
+| < BOOL > { return Tok.BOOL; }
+| < TRUE > { return Tok.TRUE; }
+| < FALSE > { return Tok.FALSE; }
+| < BREAK > { return Tok.BREAK; }
+| < FOR > { return Tok.FOR; }
+| < WHILE > { return Tok.WHILE; }
+| < RETURN > { return Tok.RETURN; }
+| < IF > { return Tok.IF; }
+| < ELSE > { return Tok.ELSE; }
+
+}
