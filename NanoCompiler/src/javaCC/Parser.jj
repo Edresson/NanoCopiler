@@ -215,6 +215,109 @@ void block() :
   varDecList() stmtList()
 } 
 
+void stmt() :
+{}
+{
+  ifStmt()
+| whileStmt()
+| forStmt()
+| breakStmt()
+| returnStmt()
+| readStmt()
+| writeStmt()
+| assing() < PTOVIRGULA >
+| subCall() < PTOVIRGULA >
+}
+
+void ifStmt() :
+{}
+{
+  < IF > < APARENT > exp() < FPARENT > < ACOLCH > block() < FCOLCH >
+| < IF > < APARENT > exp() < FPARENT > < ACOLCH > block() < ELSE > < ACOLCH > block() < FCOLCH >
+}
+
+void whileStmt() :
+{}
+{
+  < WHILE > < APARENT > exp() < FPARENT > < ACOLCH > block() < FCOLCH >
+}
+
+void forStmt() :
+{}
+{
+  < FOR > < APARENT > assign() < PTOVIRGULA > exp() < PTOVIRGULA > assign() < FPARENT > < ACOLCH > block() < FCOLCH >
+}
+
+void breakStmt() :
+{}
+{
+  < BREAK > < PTOVIRGULA >
+}
+
+void readStmt() :
+{}
+{
+  < READ > var() < PTOVIRGULA >
+}
+
+void writeStmt() :
+{}
+{
+  < WRITE > expList() < PTOVIRGULA >
+}
+
+void returnStmt() :
+{}
+{
+  < RETURN > < PTOVIRGULA >
+| < RETURN > exp() < PTOVIRGULA >
+}
+
+void subCall() :
+{}
+{
+  < IDENTIFICADOR > < APARENT > expList() < FPARENT >
+}
+
+void assign() :
+{}
+{
+  var() < ATRIBUICAO > exp()
+| var() < ATRIBUICAO_SOMA > exp()
+| var() < ATRIBUICAO_SUB > exp()
+| var() < ATRIBUICAO_MUL > exp()
+| var() < ATRIBUICAO_DIV > exp()
+| var() < MOD > exp()
+}
+
+void var() :
+{}
+{
+  < IDENTIFICADOR >
+| < IDENTIFICADOR > < ACHAVE > exp() < FCHAVE >
+}
+
+void literalSeq() :
+{}
+{
+  literal() literalSeq()
+| literal()
+}
+
+void expList() :
+{}
+{
+  expSeq()
+| empty()
+}
+
+void expSeq() :
+{}
+{
+  exp() < VIRGULA > expSeq()
+| exp()
+}
+
 Tok teste_lexico() :
 {}
 {
