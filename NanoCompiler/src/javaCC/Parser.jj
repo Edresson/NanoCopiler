@@ -29,17 +29,50 @@ public class Parser {
 	          System.out.println("Token lido: " + Tok.STRING.descricao());
 	          break;
 		  case SOMA : 
-	          System.out.println("Token lido: " + Tok.SOMA.descricao() + "\n\n");
+	          System.out.println("Token lido: " + Tok.SOMA.descricao());
 	          break;
 	      case SUB : 
-	          System.out.println("Token lido: " + Tok.SUB.descricao() + "\n\n");
+	          System.out.println("Token lido: " + Tok.SUB.descricao());
 	          break;
 	      case DIV : 
-	          System.out.println("Token lido: " + Tok.DIV.descricao() + "\n\n");
+	          System.out.println("Token lido: " + Tok.DIV.descricao());
 	          break;
 	      case MUL : 
-	          System.out.println("Token lido: " + Tok.MUL.descricao() + "\n\n");
+	          System.out.println("Token lido: " + Tok.MUL.descricao());
 	          break;
+	      case IGUAL : 
+	          System.out.println("Token lido: " + Tok.IGUAL.descricao());
+	          break;
+	      case ATRIBUICAO :
+              System.out.println("Token lido: " + Tok.ATRIBUICAO.descricao());
+              break;
+	      case IDENTIFICADOR :
+              System.out.println("Token lido: " + Tok.IDENTIFICADOR.descricao());
+              break;
+          case APARENT :
+              System.out.println("Token lido: " + Tok.APARENT.descricao());
+              break;    
+		  case FPARENT :
+              System.out.println("Token lido: " + Tok.FPARENT.descricao());
+              break;
+		  case ACHAVE :
+              System.out.println("Token lido: " + Tok.ACHAVE.descricao());
+              break;
+          case FCHAVE :
+              System.out.println("Token lido: " + Tok.FCHAVE.descricao());
+              break;
+		  case ACOLCH :
+              System.out.println("Token lido: " + Tok.ACOLCH.descricao());
+              break;
+		  case FCOLCH :
+              System.out.println("Token lido: " + Tok.FCOLCH.descricao());
+              break;
+          case VIRGULA :
+              System.out.println("Token lido: " + Tok.VIRGULA.descricao());
+              break;
+          case NUMERO :
+              System.out.println("Token lido: " + Tok.NUMERO.descricao());
+              break;
           default : 
           break;
 
@@ -225,5 +258,6 @@ Tok teste_lexico() :
 | < RETURN > { return Tok.RETURN; }
 | < IF > { return Tok.IF; }
 | < ELSE > { return Tok.ELSE; }
-
+| < IDENTIFICADOR > { return Tok.IDENTIFICADOR; }
+| < NUMERO > { return Tok.NUMERO; }
 }
