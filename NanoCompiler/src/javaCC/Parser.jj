@@ -21,7 +21,7 @@ public class Parser {
 
       try {
 
-        switch (Parser.program()) {
+        switch (Parser.readCommand()) {
           case MOD : 
 	          System.out.println("Token lido: " + Tok.MOD.descricao());
 	          break;
@@ -129,7 +129,60 @@ TOKEN : /* EXPRESSÕES REGULARES */
 
 }
 
-Tok program() :
+int readCommand() :
+{}
+{
+  decSeq() { return 1; }
+}
+
+void dec() :
+{}
+{
+  varDec()
+| < IDENTIFICADOR > < APARENT > paramList() < FPARENT > < ACOLCH > block() < FCOLCH >
+| type() < IDENTIFICADOR > < APARENT > paramList() < FPARENT > < ACOLCH > block() < FCOLCH > 
+}
+
+void varDec() :
+{}
+{
+  type() varSpecSeq() < PTOVIRGULA >
+}
+
+void varSpec() :
+{}
+{
+  < IDENTIFICADOR >
+| < IDENTIFICADOR > < ATRIBUICAO > literal()
+| < IDENTIFICADOR > < ACHAVE > < NUMERO > < FCHAVE >
+| < IDENTIFICADOR > < ACHAVE > < NUMERO > < FCHAVE > < ATRIBUICAO > < ACOLCH > literalSeq() < FCOLCH >
+
+}
+
+void type() :
+{}
+{
+  < INT >
+| < STRING >
+| < BOOL >
+
+}
+
+void param() :
+{}
+{
+  type() < IDENTIFICADOR >
+| type() < IDENTIFICADOR > < ACHAVE > < FCHAVE >
+
+}
+
+void block() :
+{}
+{
+  varDecList() stmtList()
+} 
+
+Tok teste_lexico() :
 {}
 {
   < APARENT > { return Tok.APARENT; }
