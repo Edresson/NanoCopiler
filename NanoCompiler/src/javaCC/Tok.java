@@ -43,7 +43,10 @@ public enum Tok {
 	IF(39,"IF"),
 	ELSE(40, "ELSE"),
 	IDENTIFICADOR(41, "IDENTIFICADOR"),
-	NUMERO(42, "NUMERO");
+	NUMERO(42, "NUMERO"),
+	RESTO(43, "RESTO"),
+	READ(44, "READ"),
+	WRITE(45, "WRITE");
 	
 	private final int id;
 	private final String descricao;

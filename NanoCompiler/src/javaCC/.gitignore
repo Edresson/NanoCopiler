@@ -1,1 +1,7 @@
 /ParserTokenManager.java
+/ParserConstants.java
+/SimpleCharStream.java
+/TokenMgrError.java
+/ParseException.java
+/Token.java
+/ParserTesteConstants.java

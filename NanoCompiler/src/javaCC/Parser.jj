@@ -21,7 +21,7 @@ public class Parser {
 
       try {
 
-        switch (Parser.program()) {
+        switch (Parser.readCommand()) {
           case MOD : 
 	          System.out.println("Token lido: " + Tok.MOD.descricao());
 	          break;
@@ -117,6 +117,7 @@ TOKEN : /* OPERATORS */
 | < SUB : "-" >
 | < MUL : "*" >
 | < DIV : "/" >
+| < RESTO : "%" >
 | < IGUAL : "==" >
 | < DIFERENTE : "!=" >
 | < MAIOR : ">" >
@@ -150,7 +151,8 @@ TOKEN : /* PALAVRAS RESERVADAS */
 | < RETURN : "return" >
 | < IF : "if" >
 | < ELSE : "else" >
-
+| < READ : "read" >
+| < WRITE : "write" >
 }
 
 TOKEN : /* EXPRESSÕES REGULARES */
@@ -162,7 +164,135 @@ TOKEN : /* EXPRESSÕES REGULARES */
 
 }
 
-Tok program() :
+int readCommand() :
+{}
+{
+  decSeq() { return 1; }
+}
+
+void dec() :
+{}
+{
+  varDec()
+| < IDENTIFICADOR > < APARENT > paramList() < FPARENT > < ACOLCH > block() < FCOLCH >
+| type() < IDENTIFICADOR > < APARENT > paramList() < FPARENT > < ACOLCH > block() < FCOLCH > 
+}
+
+void varDec() :
+{}
+{
+  type() varSpecSeq() < PTOVIRGULA >
+}
+
+void varSpec() :
+{}
+{
+  < IDENTIFICADOR >
+| < IDENTIFICADOR > < ATRIBUICAO > literal()
+| < IDENTIFICADOR > < ACHAVE > < NUMERO > < FCHAVE >
+| < IDENTIFICADOR > < ACHAVE > < NUMERO > < FCHAVE > < ATRIBUICAO > < ACOLCH > literalSeq() < FCOLCH >
+
+}
+
+void type() :
+{}
+{
+  < INT >
+| < STRING >
+| < BOOL >
+
+}
+
+void param() :
+{}
+{
+  type() < IDENTIFICADOR >
+| type() < IDENTIFICADOR > < ACHAVE > < FCHAVE >
+
+}
+
+void block() :
+{}
+{
+  varDecList() stmtList()
+} 
+
+void exp() :
+{}
+{
+  exp() < SOMA > exp()
+| exp() < SUB > exp()
+| exp() < MUL > exp()
+| exp() < DIV > exp()
+| exp() < RESTO > exp()
+| exp() < IGUAL > exp()
+| exp() < DIFERENTE > exp()
+| exp() < MAIORIGUAL > exp()
+| exp() < MENORIGUAL > exp()
+| exp() < MAIOR > exp()
+| exp() < MENOR > exp()
+| exp() < OR > exp()
+| exp() < AND > exp()
+| exp() < NOT > exp()
+| < SUB > exp()
+| exp() < TERN_ENTAO > exp() < TERN_SENAO > exp()
+| subCall()
+| var()
+| literal()
+| < APARENT > exp() < FPARENT >
+}
+
+void literal() :
+{}
+{
+  < NUMERO >
+}
+
+void paramList() :
+{}
+{
+  paramSeq()
+| empty()
+}
+
+void paramSeq() :
+{}
+{
+  param() < VIRGULA > paramSeq()
+| param()
+}
+
+void varDecList() :
+{}
+{
+  varDec() decSeq()
+| dec()
+}
+
+void varSpecSeq() :
+{}
+{
+  varSpec() < VIRGULA > varSpecSeq()
+| varSpec()
+}
+
+void decSeq() :
+{}
+{
+  dec() decSeq()
+| dec()
+}
+
+void stmtList() :
+{}
+{
+  stmt() stmtList()
+| empty() 
+}
+ 
+
+
+Tok teste_lexico() :
 {}
 {
   < APARENT > { return Tok.APARENT; }
@@ -207,4 +337,7 @@ Tok program() :
 | < ELSE > { return Tok.ELSE; }
 | < IDENTIFICADOR > { return Tok.IDENTIFICADOR; }
 | < NUMERO > { return Tok.NUMERO; }
+| < RESTO > { return Tok.RESTO; }
+| < READ > { return Tok.READ; }
+| < WRITE > { return Tok.WRITE; }
 }
