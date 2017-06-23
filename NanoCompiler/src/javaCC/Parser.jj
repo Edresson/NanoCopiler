@@ -21,7 +21,7 @@ public class Parser {
 
       try {
 
-        switch (Parser.readCommand()) {
+        switch (Parser.program()) {
           case MOD : 
 	          System.out.println("Token lido: " + Tok.MOD.descricao());
 	          break;
@@ -170,6 +170,20 @@ int program() :
   decSeq() { return 1; }
 }
 
+void decSeq() :
+{}
+{
+  dec() decSeqLinha()
+}
+
+void decSeqLinha() :
+{}
+{
+  LOOKAHEAD(3)
+  decSeq()
+| dec()
+}
+
 void dec() :
 {}
 {
@@ -187,11 +201,35 @@ void varDec() :
 void varSpec() :
 {}
 {
-  < IDENTIFICADOR >
-| < IDENTIFICADOR > < ATRIBUICAO > literal()
-| < IDENTIFICADOR > < ACHAVE > < NUMERO > < FCHAVE >
-| < IDENTIFICADOR > < ACHAVE > < NUMERO > < FCHAVE > < ATRIBUICAO > < ACOLCH > literalSeq() < FCOLCH >
+  < IDENTIFICADOR > varSpecLinha()
+}
 
+void varSpecLinha() :
+{}
+{
+  < ATRIBUICAO > literal()
+| < ACHAVE > < NUMERO > < FCHAVE > varSpecDuasLinhas()
+}
+
+void varSpecDuasLinhas() :
+{}
+{
+  < ATRIBUICAO > < ACOLCH > literalSeq() < FCOLCH >
+| empty()
+}
+
+void varSpecSeq() :
+{}
+{
+  varSpec() varSpecSeqLinha()
+}
+
+void varSpecSeqLinha() :
+{
+}
+{
+  < VIRGULA > varSpecSeq()
+| varSpec()
 }
 
 void type() :
@@ -206,10 +244,16 @@ void type() :
 void param() :
 {}
 {
-  type() < IDENTIFICADOR >
-| type() < IDENTIFICADOR > < ACHAVE > < FCHAVE >
-
+  type() < IDENTIFICADOR > paramLinha()
 }
+
+void paramLinha() :
+{}
+{
+  < IDENTIFICADOR > < ACHAVE > < FCHAVE >
+| empty()
+}
+
 
 void block() :
 {}
@@ -220,22 +264,30 @@ void block() :
 void stmt() :
 {}
 {
-  ifStmt()
+  LOOKAHEAD(2)
+  assign() < PTOVIRGULA >
+| subCall() < PTOVIRGULA >
+| ifStmt()
 | whileStmt()
 | forStmt()
 | breakStmt()
 | returnStmt()
 | readStmt()
 | writeStmt()
-| assign() < PTOVIRGULA >
-| subCall() < PTOVIRGULA >
 }
 
 void ifStmt() :
 {}
 {
-  < IF > < APARENT > exp() < FPARENT > < ACOLCH > block() < FCOLCH >
-| < IF > < APARENT > exp() < FPARENT > < ACOLCH > block() < ELSE > < ACOLCH > block() < FCOLCH >
+  < IF > < APARENT > exp() < FPARENT > < ACOLCH > block() < FCOLCH > ifStmtLinha()
+}
+
+void ifStmtLinha() :
+{
+}
+{
+  < ELSE > < ACOLCH > block() < FCOLCH >
+| empty()
 }
 
 void whileStmt() :
@@ -271,6 +323,7 @@ void writeStmt() :
 void returnStmt() :
 {}
 {
+  LOOKAHEAD(2)
   < RETURN > < PTOVIRGULA >
 | < RETURN > exp() < PTOVIRGULA >
 }
@@ -284,45 +337,71 @@ void subCall() :
 void assign() :
 {}
 {
-  var() < ATRIBUICAO > exp()
-| var() < ATRIBUICAO_SOMA > exp()
-| var() < ATRIBUICAO_SUB > exp()
-| var() < ATRIBUICAO_MUL > exp()
-| var() < ATRIBUICAO_DIV > exp()
-| var() < MOD > exp()
+  var() assignLinha()
+}
+
+void assignLinha() :
+{ }
+{
+  < ATRIBUICAO > exp()
+| < ATRIBUICAO_SOMA > exp()
+| < ATRIBUICAO_SUB > exp()
+| < ATRIBUICAO_MUL > exp()
+| < ATRIBUICAO_DIV > exp()
+| < MOD > exp()
 }
 
 void var() :
 {}
 {
-  < IDENTIFICADOR >
-| < IDENTIFICADOR > < ACHAVE > exp() < FCHAVE >
+  < IDENTIFICADOR > varLinha()
+}
+
+void varLinha() :
+{}
+{
+  < IDENTIFICADOR > < ACHAVE > exp() < FCHAVE >
 }
 
 void exp() :
 {}
 {
-  exp() < SOMA > exp()
-| exp() < SUB > exp()
-| exp() < MUL > exp()
-| exp() < DIV > exp()
-| exp() < RESTO > exp()
-| exp() < IGUAL > exp()
-| exp() < DIFERENTE > exp()
-| exp() < MAIORIGUAL > exp()
-| exp() < MENORIGUAL > exp()
-| exp() < MAIOR > exp()
-| exp() < MENOR > exp()
-| exp() < OR > exp()
-| exp() < AND > exp()
-| exp() < NOT > exp()
-| < SUB > exp()
-| exp() < TERN_ENTAO > exp() < TERN_SENAO > exp()
-| subCall()
-| var()
-| literal()
-| < APARENT > exp() < FPARENT >
+  LOOKAHEAD(2)
+  subCall() expLinha()
+| var() expLinha()
+| < NOT > exp() expLinha()
+| < SUB > exp() expLinha()
+| literal() expLinha()
+| < APARENT > exp() < FPARENT > expLinha()
 }
+
+void expLinha() :
+{ }
+{
+  < SOMA > exp() expLinha()
+| < SUB > exp() expLinha()
+| < MUL > exp() expLinha()
+| < DIV > exp() expLinha()
+| < RESTO > exp() expLinha()
+| < IGUAL > exp() expLinha()
+| < DIFERENTE > exp() expLinha()
+| < MAIORIGUAL > exp() expLinha()
+| < MENORIGUAL > exp() expLinha()
+| < MAIOR > exp() expLinha()
+| < MENOR > exp() expLinha()
+| < OR > exp() expLinha()
+| < AND > exp() expLinha()
+| < TERN_ENTAO > exp() < TERN_SENAO > exp() expLinha()
+| empty()
+}
+
+void empty() :
+{}
+{
+  {}
+}
+  
+  
 
 void literal() :
 {}
@@ -340,28 +419,21 @@ void paramList() :
 void paramSeq() :
 {}
 {
-  param() < VIRGULA > paramSeq()
+  param() paramSeqLinha()
+}
+
+void paramSeqLinha() :
+{}
+{
+  < VIRGULA > paramSeq()
 | param()
 }
 
 void varDecList() :
 {}
 {
+  LOOKAHEAD(3)
   varDec() decSeq()
-| dec()
-}
-
-void varSpecSeq() :
-{}
-{
-  varSpec() < VIRGULA > varSpecSeq()
-| varSpec()
-}
-
-void decSeq() :
-{}
-{
-  dec() decSeq()
 | dec()
 }
 
@@ -376,7 +448,14 @@ void stmtList() :
 void literalSeq() :
 {}
 {
-  literal() literalSeq()
+  literal() literalSeqLinha()
+}
+
+void literalSeqLinha() :
+{}
+{
+  LOOKAHEAD(2)
+  literalSeq()
 | literal()
 }
 
@@ -390,11 +469,15 @@ void expList() :
 void expSeq() :
 {}
 {
-  exp() < VIRGULA > expSeq()
-| exp()
+  exp() expSeqLinha()
 }
 
-void empty () : { } { ""}
+void expSeqLinha() :
+{}
+{
+  < VIRGULA > expSeq()
+| exp()
+}
 
 Tok teste_lexico() :
 {}
