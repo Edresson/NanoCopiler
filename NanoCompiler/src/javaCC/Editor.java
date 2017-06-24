@@ -25,8 +25,10 @@ public class Editor extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField caminhoArquivo;
-
-	private Compilador compilador;
+	private Compilador compilador = new Compilador();
+	private JTextPane textAreaTokens;
+	private JTextPane textAreaCodigo;
+	private JTextPane console;
 
 	/**
 	 * Launch the application.
@@ -44,6 +46,17 @@ public class Editor extends JFrame {
 		});
 	}
 
+	public void limparTudo() {
+		textAreaCodigo.setText("");
+		textAreaTokens.setText("");
+		console.setText("");
+	}
+	
+	public void limpar() {
+		console.setText("");
+		textAreaTokens.setText("");
+	}
+	
 	/**
 	 * Create the frame.
 	 */
@@ -63,36 +76,43 @@ public class Editor extends JFrame {
 		contentPane.add(caminhoArquivo);
 		caminhoArquivo.setColumns(10);
 		
+		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(420, 45, 354, 336);
+		contentPane.add(scrollPane_1);
+		
 		JPanel panel_1 = new JPanel();
-		panel_1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Tokens", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panel_1.setBounds(420, 45, 354, 336);
-		contentPane.add(panel_1);
+		scrollPane_1.setViewportView(panel_1);
 		panel_1.setLayout(null);
+		panel_1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Console", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		
-		JTextPane textAreaTokens = new JTextPane();
-		textAreaTokens.setEditable(false);
-		textAreaTokens.setFont(new Font("Monospaced", Font.PLAIN, 11));
-		textAreaTokens.setBounds(10, 21, 334, 304);
-		panel_1.add(textAreaTokens);
-		
-		JPanel panel_2 = new JPanel();
-		panel_2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Console", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panel_2.setBounds(420, 392, 354, 158);
-		contentPane.add(panel_2);
-		panel_2.setLayout(null);
-		
-		JTextPane console = new JTextPane();
-		console.setEditable(false);
+		console = new JTextPane();
 		console.setFont(new Font("Monospaced", Font.PLAIN, 11));
-		console.setBounds(10, 22, 334, 125);
-		panel_2.add(console);
+		console.setEditable(false);
+		console.setBounds(10, 22, 334, 301);
+		panel_1.add(console);
+		
+		JScrollPane scrollPane_2 = new JScrollPane();
+		scrollPane_2.setBounds(420, 392, 354, 158);
+		contentPane.add(scrollPane_2);
+		
+		JPanel panel = new JPanel();
+		scrollPane_2.setViewportView(panel);
+		panel.setLayout(null);
+		panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Tokens", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		
+		textAreaTokens = new JTextPane();
+		textAreaTokens.setFont(new Font("Monospaced", Font.PLAIN, 11));
+		textAreaTokens.setEditable(false);
+		textAreaTokens.setBounds(10, 21, 334, 304);
+		panel.add(textAreaTokens);
 		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setViewportBorder(new TitledBorder(null, "C\u00F3digo", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		scrollPane.setBounds(10, 45, 400, 505);
 		contentPane.add(scrollPane);
 		
-		JTextPane textAreaCodigo = new JTextPane();
+		textAreaCodigo = new JTextPane();
+		textAreaCodigo.setFont(new Font("Monospaced", Font.PLAIN, 11));
 		scrollPane.setViewportView(textAreaCodigo);
 		
 		JButton btnAbrirArquivo = new JButton("Abrir Arquivo");
@@ -106,10 +126,11 @@ public class Editor extends JFrame {
 				int returnVal = fc.showOpenDialog(contentPane);
 				
 				File file = null;
-		        if (returnVal == JFileChooser.APPROVE_OPTION) {
-		            file = fc.getSelectedFile();
+		        if (returnVal != JFileChooser.APPROVE_OPTION) {
+		        	return;
 		        } 
 		        
+		        file = fc.getSelectedFile();
 		        caminhoArquivo.setText(file.getPath());
 		        
 		        try {
@@ -125,7 +146,10 @@ public class Editor extends JFrame {
 		JButton btnCompilar = new JButton("Compilar");
 		btnCompilar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				compilador = new Compilador(textAreaCodigo.getText());
+				limpar();
+				
+				compilador.compilar(textAreaCodigo.getText());
+				console.setText(compilador.getConsole());
 			}
 		});
 		btnCompilar.setBounds(685, 11, 89, 23);
@@ -134,9 +158,7 @@ public class Editor extends JFrame {
 		JButton btnLimpar = new JButton("Limpar");
 		btnLimpar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				textAreaCodigo.setText("");
-				textAreaTokens.setText("");
-				console.setText("");
+				limparTudo();
 			}
 		});
 		btnLimpar.setBounds(586, 11, 89, 23);

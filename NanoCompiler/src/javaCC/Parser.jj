@@ -11,84 +11,13 @@ package javaCC;
 
 public class Parser {
 
-  public static void main(String args []) throws ParseException {
-
-    Parser parser = new Parser(System.in);
-    while (true) {
-
-      System.out.println("Leitura de tokens:");
-      System.out.print("Digite um token qualquer: (para terminar digite ';')");
-
-      try {
-
-        switch (Parser.readCommand()) {
-          case MOD : 
-	          System.out.println("Token lido: " + Tok.MOD.descricao());
-	          break;
-          case STRING : 
-	          System.out.println("Token lido: " + Tok.STRING.descricao());
-	          break;
-		  case SOMA : 
-	          System.out.println("Token lido: " + Tok.SOMA.descricao());
-	          break;
-	      case SUB : 
-	          System.out.println("Token lido: " + Tok.SUB.descricao());
-	          break;
-	      case DIV : 
-	          System.out.println("Token lido: " + Tok.DIV.descricao());
-	          break;
-	      case MUL : 
-	          System.out.println("Token lido: " + Tok.MUL.descricao());
-	          break;
-	      case IGUAL : 
-	          System.out.println("Token lido: " + Tok.IGUAL.descricao());
-	          break;
-	      case ATRIBUICAO :
-              System.out.println("Token lido: " + Tok.ATRIBUICAO.descricao());
-              break;
-	      case IDENTIFICADOR :
-              System.out.println("Token lido: " + Tok.IDENTIFICADOR.descricao());
-              break;
-          case APARENT :
-              System.out.println("Token lido: " + Tok.APARENT.descricao());
-              break;    
-		  case FPARENT :
-              System.out.println("Token lido: " + Tok.FPARENT.descricao());
-              break;
-		  case ACHAVE :
-              System.out.println("Token lido: " + Tok.ACHAVE.descricao());
-              break;
-          case FCHAVE :
-              System.out.println("Token lido: " + Tok.FCHAVE.descricao());
-              break;
-		  case ACOLCH :
-              System.out.println("Token lido: " + Tok.ACOLCH.descricao());
-              break;
-		  case FCOLCH :
-              System.out.println("Token lido: " + Tok.FCOLCH.descricao());
-              break;
-          case VIRGULA :
-              System.out.println("Token lido: " + Tok.VIRGULA.descricao());
-              break;
-          case NUMERO :
-              System.out.println("Token lido: " + Tok.NUMERO.descricao());
-              break;
-          default : 
+  public void compilar() throws ParseException {
+    switch (Parser.program()) {
+      case MOD : 
+          System.out.println("Token lido: " + Tok.MOD.descricao());
           break;
-
-        }
-      } catch (Exception e) {
-
-        System.out.println("NOK.");
-        System.out.println(e.getMessage());
-        Parser.ReInit(System.in);
-      }
-      catch (Error e) {
-
-        System.out.println("Oops.");
-        System.out.println(e.getMessage());
-        break;
-      }
+      default : 
+      break;
     }
   }
 }
@@ -174,6 +103,7 @@ int program() :
 void dec() :
 {}
 {
+  LOOKAHEAD ( varDec() )
   varDec()
 | < IDENTIFICADOR > < APARENT > paramList() < FPARENT > < ACOLCH > block() < FCOLCH >
 | type() < IDENTIFICADOR > < APARENT > paramList() < FPARENT > < ACOLCH > block() < FCOLCH > 
@@ -188,9 +118,15 @@ void varDec() :
 void varSpec() :
 {}
 {
+  LOOKAHEAD( < IDENTIFICADOR > )
   < IDENTIFICADOR >
-| < IDENTIFICADOR > < ATRIBUICAO > literal()
-| < IDENTIFICADOR > < ACHAVE > < NUMERO > < FCHAVE >
+
+| LOOKAHEAD( < IDENTIFICADOR > < ATRIBUICAO > literal() )
+  < IDENTIFICADOR > < ATRIBUICAO > literal()
+
+| LOOKAHEAD( < IDENTIFICADOR > < ACHAVE > < NUMERO > < FCHAVE > )
+  < IDENTIFICADOR > < ACHAVE > < NUMERO > < FCHAVE >
+  
 | < IDENTIFICADOR > < ACHAVE > < NUMERO > < FCHAVE > < ATRIBUICAO > < ACOLCH > literalSeq() < FCOLCH >
 
 }
@@ -207,6 +143,7 @@ void type() :
 void param() :
 {}
 {
+  LOOKAHEAD( type() < IDENTIFICADOR > )
   type() < IDENTIFICADOR >
 | type() < IDENTIFICADOR > < ACHAVE > < FCHAVE >
 
@@ -228,13 +165,15 @@ void stmt() :
 | returnStmt()
 | readStmt()
 | writeStmt()
-| assign() < PTOVIRGULA >
+| LOOKAHEAD( assign() < PTOVIRGULA > )
+  assign() < PTOVIRGULA >
 | subCall() < PTOVIRGULA >
 }
 
 void ifStmt() :
 {}
 {
+  LOOKAHEAD( < IF > < APARENT > exp() < FPARENT > < ACOLCH > block() < FCOLCH > )
   < IF > < APARENT > exp() < FPARENT > < ACOLCH > block() < FCOLCH >
 | < IF > < APARENT > exp() < FPARENT > < ACOLCH > block() < ELSE > < ACOLCH > block() < FCOLCH >
 }
@@ -272,6 +211,7 @@ void writeStmt() :
 void returnStmt() :
 {}
 {
+  LOOKAHEAD( < RETURN > < PTOVIRGULA > )
   < RETURN > < PTOVIRGULA >
 | < RETURN > exp() < PTOVIRGULA >
 }
@@ -285,17 +225,28 @@ void subCall() :
 void assign() :
 {}
 {
+  LOOKAHEAD( var() < ATRIBUICAO > exp() )
   var() < ATRIBUICAO > exp()
-| var() < ATRIBUICAO_SOMA > exp()
-| var() < ATRIBUICAO_SUB > exp()
-| var() < ATRIBUICAO_MUL > exp()
-| var() < ATRIBUICAO_DIV > exp()
+
+| LOOKAHEAD( var() < ATRIBUICAO_SOMA  > exp() )
+  var() < ATRIBUICAO_SOMA > exp()
+
+| LOOKAHEAD( var() < ATRIBUICAO_SUB > exp() ) 
+  var() < ATRIBUICAO_SUB > exp()
+
+| LOOKAHEAD( var() < ATRIBUICAO_MUL > exp() )
+  var() < ATRIBUICAO_MUL > exp()
+
+| LOOKAHEAD( var() < ATRIBUICAO_DIV > exp() )
+  var() < ATRIBUICAO_DIV > exp()
+  
 | var() < MOD > exp()
 }
 
 void var() :
 {}
 {
+  LOOKAHEAD(2)
   < IDENTIFICADOR >
 | < IDENTIFICADOR > < ACHAVE > exp() < FCHAVE >
 }
@@ -303,44 +254,55 @@ void var() :
 void exp() :
 {}
 {
-  exp() < SOMA > exp()
-| exp() < SUB > exp()
-| exp() < MUL > exp()
-| exp() < DIV > exp()
-| exp() < RESTO > exp()
-| exp() < IGUAL > exp()
-| exp() < DIFERENTE > exp()
-| exp() < MAIORIGUAL > exp()
-| exp() < MENORIGUAL > exp()
-| exp() < MAIOR > exp()
-| exp() < MENOR > exp()
-| exp() < OR > exp()
-| exp() < AND > exp()
-| exp() < NOT > exp()
-| < SUB > exp()
-| exp() < TERN_ENTAO > exp() < TERN_SENAO > exp()
-| subCall()
-| var()
-| literal()
-| < APARENT > exp() < FPARENT >
+  LOOKAHEAD( subCall() expLinha() )
+  subCall() expLinha()
+| var() expLinha()
+| < SUB > exp() expLinha()
+| < NOT > exp() expLinha()
+| literal() expLinha()
+| < APARENT > exp() < FPARENT > expLinha()
+}
+
+void expLinha() :
+{}
+{
+  < SOMA > exp() expLinha()
+| < SUB > exp() expLinha()
+| < MUL > exp() expLinha()
+| < DIV > exp() expLinha()
+| < RESTO > exp() expLinha()
+| < IGUAL > exp() expLinha()
+| < DIFERENTE > exp() expLinha()
+| < MAIORIGUAL > exp() expLinha()
+| < MENORIGUAL > exp() expLinha()
+| < MAIOR > exp() expLinha()
+| < MENOR > exp() expLinha()
+| < OR > exp() expLinha()
+| < AND > exp() expLinha()
+| < TERN_ENTAO > exp() < TERN_SENAO > exp() expLinha()
+| { }
 }
 
 void literal() :
 {}
 {
   < NUMERO >
+| < IDENTIFICADOR >
+| < TRUE >
+| < FALSE >
 }
 
 void paramList() :
 {}
 {
   paramSeq()
-| empty()
+| {}
 }
 
 void paramSeq() :
 {}
 {
+  LOOKAHEAD( param() < VIRGULA > paramSeq() )
   param() < VIRGULA > paramSeq()
 | param()
 }
@@ -348,6 +310,7 @@ void paramSeq() :
 void varDecList() :
 {}
 {
+  LOOKAHEAD( varDec() decSeq() )
   varDec() decSeq()
 | dec()
 }
@@ -355,6 +318,7 @@ void varDecList() :
 void varSpecSeq() :
 {}
 {
+  LOOKAHEAD( varSpec() < VIRGULA > varSpecSeq() )
   varSpec() < VIRGULA > varSpecSeq()
 | varSpec()
 }
@@ -362,21 +326,21 @@ void varSpecSeq() :
 void decSeq() :
 {}
 {
-  dec() decSeq()
-| dec()
+  dec() < PTOVIRGULA >
 }
 
 void stmtList() :
 {}
 {
   stmt() stmtList()
-| empty() 
+| {} 
 }
  
 
 void literalSeq() :
 {}
 {
+  LOOKAHEAD( literal() literalSeq() )
   literal() literalSeq()
 | literal()
 }
@@ -385,17 +349,16 @@ void expList() :
 {}
 {
   expSeq()
-| empty()
+| {}
 }
 
 void expSeq() :
 {}
 {
+  LOOKAHEAD( exp() < VIRGULA > expSeq() )
   exp() < VIRGULA > expSeq()
 | exp()
 }
-
-void empty () : { } { ""}
 
 Tok teste_lexico() :
 {}
