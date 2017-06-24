@@ -144,6 +144,7 @@ TOKEN : /* PALAVRAS RESERVADAS */
   < STRING : "string" >
 | < INT : "int" >
 | < BOOL : "bool" >
+| < VOID : "void" >
 | < TRUE : "true" >
 | < FALSE : "false" >
 | < BREAK : "break" >
@@ -168,69 +169,75 @@ TOKEN : /* EXPRESSÕES REGULARES */
 int program() :
 {}
 {
-  decSeq() { return 1; }
+  decSeqList() { return 1; }
+}
+
+void decSeqList() :
+{}
+{
+  type() < IDENTIFICADOR > decSeq()
+| decProcedimento()
 }
 
 void decSeq() :
 {}
 {
-  dec() decSeqLinha()
+  decVar()
+| decFuncao()
 }
 
-void decSeqLinha() :
+void decProcedimento() :
 {}
 {
-  LOOKAHEAD(3)
-  decSeq()
-| dec()
+  < IDENTIFICADOR > decFuncao()
+}
+
+void decFuncao() :
+{}
+{
+  < APARENT > listaParametros() < FPARENT > < ACHAVE > bloco() < FCHAVE >
+}
+
+void decVar() :
+{}
+{
+  dec() < PTOVIRGULA >
 }
 
 void dec() :
 {}
 {
-  varDec()
-| < IDENTIFICADOR > < APARENT > paramList() < FPARENT > < ACOLCH > block() < FCOLCH >
-| type() < IDENTIFICADOR > < APARENT > paramList() < FPARENT > < ACOLCH > block() < FCOLCH > 
-}
-
-void varDec() :
-{}
-{
-  type() varSpecSeq() < PTOVIRGULA >
-}
-
-void varSpec() :
-{}
-{
-  < IDENTIFICADOR > varSpecLinha()
-}
-
-void varSpecLinha() :
-{}
-{
-  < ATRIBUICAO > literal()
-| < ACHAVE > < NUMERO > < FCHAVE > varSpecDuasLinhas()
-}
-
-void varSpecDuasLinhas() :
-{}
-{
-  < ATRIBUICAO > < ACOLCH > literalSeq() < FCOLCH >
+  atribuicao()
+| < ACOLCH > < NUMERO > < FCOLCH > decLinha()
+| < VIRGULA > < IDENTIFICADOR > dec()
 | empty()
 }
 
-void varSpecSeq() :
+void decLinha() :
 {}
 {
-  varSpec() varSpecSeqLinha()
+  atribuicao()
+| empty()
 }
 
-void varSpecSeqLinha() :
+void atribuicao() :
+{}
 {
+  < ATRIBUICAO > literal() dec()
 }
+
+void listaParametros() :
+{}
 {
-  < VIRGULA > varSpecSeq()
-| varSpec()
+  type() < IDENTIFICADOR > restoParametros()
+| empty()
+}
+
+void restoParametros() :
+{}
+{
+ < VIRGULA > type() < IDENTIFICADOR > restoParametros()
+| listaParametros()
 }
 
 void type() :
@@ -239,117 +246,40 @@ void type() :
   < INT >
 | < STRING >
 | < BOOL >
-
 }
 
-void param() :
+void bloco() :
 {}
 {
-  type() < IDENTIFICADOR > paramLinha()
+  type() < IDENTIFICADOR > decVar() listaEstado()
+| listaEstado()
 }
 
-void paramLinha() :
+void listaEstado() :
 {}
 {
-  < IDENTIFICADOR > < ACHAVE > < FCHAVE >
+  < IDENTIFICADOR > subRotinaAtribuicao()
+| chamadaIf()
+| chamadaWhile()
+| chamadaFor()
+| chamadaBreak()
+| chamadaReturn()
+| chamadaRead()
+| chamadaWrite()
 | empty()
 }
 
-
-void block() :
+void subRotinaAtribuicao() :
 {}
 {
-  varDecList() stmtList()
-} 
-
-void stmt() :
-{}
-{
-  LOOKAHEAD(2)
-  assign() < PTOVIRGULA >
-| subCall() < PTOVIRGULA >
-| ifStmt()
-| whileStmt()
-| forStmt()
-| breakStmt()
-| returnStmt()
-| readStmt()
-| writeStmt()
+  chamadaSubRotina() < PTOVIRGULA >
+| chamadaAtribuicao() < PTOVIRGULA >
 }
 
-void ifStmt() :
-{}
-{
-  < IF > < APARENT > exp() < FPARENT > < ACOLCH > block() < FCOLCH > ifStmtLinha()
-}
-
-void ifStmtLinha() :
-{
-}
-{
-  < ELSE > < ACOLCH > block() < FCOLCH >
-| empty()
-}
-
-void whileStmt() :
-{}
-{
-  < WHILE > < APARENT > exp() < FPARENT > < ACOLCH > block() < FCOLCH >
-}
-
-void forStmt() :
-{}
-{
-  < FOR > < APARENT > assign() < PTOVIRGULA > exp() < PTOVIRGULA > assign() < FPARENT > < ACOLCH > block() < FCOLCH >
-}
-
-void breakStmt() :
-{}
-{
-  < BREAK > < PTOVIRGULA >
-}
-
-void readStmt() :
+void chamadaRead() :
 {}
 {
   < READ > var() < PTOVIRGULA >
-}
-
-void writeStmt() :
-{}
-{
-  < WRITE > expList() < PTOVIRGULA >
-}
-
-void returnStmt() :
-{}
-{
-  LOOKAHEAD(2)
-  < RETURN > < PTOVIRGULA >
-| < RETURN > exp() < PTOVIRGULA >
-}
-
-void subCall() :
-{}
-{
-  < IDENTIFICADOR > < APARENT > expList() < FPARENT >
-}
-
-void assign() :
-{}
-{
-  var() assignLinha()
-}
-
-void assignLinha() :
-{ }
-{
-  < ATRIBUICAO > exp()
-| < ATRIBUICAO_SOMA > exp()
-| < ATRIBUICAO_SUB > exp()
-| < ATRIBUICAO_MUL > exp()
-| < ATRIBUICAO_DIV > exp()
-| < MOD > exp()
 }
 
 void var() :
@@ -361,19 +291,122 @@ void var() :
 void varLinha() :
 {}
 {
-  < IDENTIFICADOR > < ACHAVE > exp() < FCHAVE >
+  < ACOLCH > exp() < FCOLCH >
+| empty()
+}
+
+void chamadaWrite() :
+{}
+{
+  < WRITE > listaArgumento() < PTOVIRGULA >
+}
+
+void chamadaReturn() :
+{}
+{
+  < RETURN > chamadaReturnLinha()
+}
+
+void chamadaReturnLinha() :
+{}
+{
+  < PTOVIRGULA >
+| exp() < PTOVIRGULA >
+}
+
+void chamadaBreak() :
+{}
+{
+  < BREAK > < PTOVIRGULA >
+}
+
+void chamadaFor() :
+{}
+{
+  < FOR > < APARENT > < IDENTIFICADOR > chamadaAtribuicao() < PTOVIRGULA > exp() < PTOVIRGULA > < IDENTIFICADOR > chamadaAtribuicao() < FPARENT > < ACHAVE > bloco() < FCHAVE >
+}
+
+void chamadaWhile() :
+{}
+{
+  < WHILE > < APARENT > exp() < FPARENT > < ACHAVE > bloco() < FCHAVE >
+}
+
+void chamadaIf() :
+{}
+{
+  < IF > < APARENT > exp() < FPARENT > < ACHAVE > bloco() < FCHAVE > chamadaIfLinha()
+}
+
+void chamadaIfLinha() :
+{}
+{
+  < ELSE > < ACHAVE > bloco() < ACHAVE >
+| empty()
+}
+
+void chamadaSubRotina() :
+{}
+{
+  < APARENT > listaArgumento() < FPARENT > 
+}
+
+void chamadaAtribuicao() :
+{}
+{
+  < ATRIBUICAO > exp()
+| < ATRIBUICAO_SOMA > exp()
+| < ATRIBUICAO_SUB > exp()
+| < ATRIBUICAO_MUL > exp()
+| < ATRIBUICAO_DIV > exp()
+| < MOD > exp()
 }
 
 void exp() :
 {}
 {
-  LOOKAHEAD(2)
-  subCall() expLinha()
-| var() expLinha()
+  literal() expLinha()
 | < NOT > exp() expLinha()
 | < SUB > exp() expLinha()
-| literal() expLinha()
 | < APARENT > exp() < FPARENT > expLinha()
+}
+
+void listaArgumento() :
+{}
+{
+  < IDENTIFICADOR > restoArgumentos()
+| < NUMERO > restoArgumentos()
+| empty()
+}
+
+void restoArgumentos() :
+{}
+{
+  < VIRGULA > restoArgumentosLinha()
+| listaArgumento()
+}
+
+void restoArgumentosLinha() :
+{}
+{
+  < IDENTIFICADOR > restoArgumentos()
+| < NUMERO > restoArgumentos()
+}
+
+void literal() :
+{}
+{
+  < NUMERO >
+| < IDENTIFICADOR > chamaFuncao()
+| < TRUE >
+| < FALSE >
+}
+
+void chamaFuncao() :
+{}
+{
+  chamadaSubRotina()
+| empty()
 }
 
 void expLinha() :
@@ -400,84 +433,6 @@ void empty() :
 {}
 {
   {}
-}
-  
-  
-
-void literal() :
-{}
-{
-  < NUMERO >
-}
-
-void paramList() :
-{}
-{
-  paramSeq()
-| empty()
-}
-
-void paramSeq() :
-{}
-{
-  param() paramSeqLinha()
-}
-
-void paramSeqLinha() :
-{}
-{
-  < VIRGULA > paramSeq()
-| param()
-}
-
-void varDecList() :
-{}
-{
-  LOOKAHEAD(3)
-  varDec() decSeq()
-| dec()
-}
-
-void stmtList() :
-{}
-{
-  stmt() stmtList()
-| empty() 
-}
- 
-
-void literalSeq() :
-{}
-{
-  literal() literalSeqLinha()
-}
-
-void literalSeqLinha() :
-{}
-{
-  LOOKAHEAD(2)
-  literalSeq()
-| literal()
-}
-
-void expList() :
-{}
-{
-  expSeq()
-| empty()
-}
-
-void expSeq() :
-{}
-{
-  exp() expSeqLinha()
-}
-
-void expSeqLinha() :
-{}
-{
-  < VIRGULA > expSeq()
-| exp()
 }
 
 Tok teste_lexico() :
