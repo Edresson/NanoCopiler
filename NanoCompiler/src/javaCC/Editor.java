@@ -1,5 +1,7 @@
 package javaCC;
 
+import static javaCC.Compilador.SUCESSO;
+
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -18,18 +20,18 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
-import javax.swing.SwingConstants;
 
 public class Editor extends JFrame {
 
+	private static final long serialVersionUID = 2931774801826309005L;
 	private JPanel contentPane;
 	private JTextField caminhoArquivo;
 	private Compilador compilador = new Compilador();
@@ -177,17 +179,11 @@ public class Editor extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				limpar();
 				
-				Integer resultadoCompilacao = compilador.compilar(textAreaCodigo.getText());
-			
-				if (resultadoCompilacao == Compilador.SUCESSO) {
-					//TODO
-				} else if (resultadoCompilacao == Compilador.ERRO) {
-					//TODO
-				} else if (resultadoCompilacao == Compilador.NAO_COMPILADO) {
-					//TODO
-				}
+				if (SUCESSO.equals(compilador.compilar(textAreaCodigo.getText()))) {
+					SimpleNodePrinter printer = (SimpleNodePrinter) compilador.getArvoreSemantica();
+					textAreaTokens.setText(printer.printAST(""));
+				} 
 				
-				textAreaTokens.setText("");
 				console.setText(compilador.getConsole());
 			}
 		});

@@ -1,5 +1,7 @@
 package javaCC;
 
+import static org.apache.commons.io.IOUtils.toInputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -35,12 +37,11 @@ public class Compilador {
 		try {
 			console = "";
 			InputStream codigo;
-			codigo = IOUtils.toInputStream(codigoStr, "UTF-8");
+			codigo = toInputStream(codigoStr, "UTF-8");
 			
 			Parser.ReInit(codigo);
 			
 			arvoreSemantica = parser.compilar();
-			arvoreSemantica.dump("");
 			
 			console = "Código compilado sem erros";
 			return SUCESSO;
