@@ -1,6 +1,6 @@
-package javaCC;
+package front;
 
-import static javaCC.Compilador.SUCESSO;
+import static front.Compilador.SUCESSO;
 
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -180,8 +180,7 @@ public class Editor extends JFrame {
 				limpar();
 				
 				if (SUCESSO.equals(compilador.compilar(textAreaCodigo.getText()))) {
-					SimpleNodePrinter printer = (SimpleNodePrinter) compilador.getArvoreSemantica();
-					textAreaTokens.setText(printer.printAST(""));
+					textAreaTokens.setText(compilador.printAst());
 				} 
 				
 				console.setText(compilador.getConsole());

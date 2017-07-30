@@ -1,4 +1,4 @@
-package javaCC;
+package front;
 
 public enum Tok {
 	

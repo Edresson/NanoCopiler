@@ -1,11 +1,18 @@
-package javaCC;
+package front;
 
 import static org.apache.commons.io.IOUtils.toInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+
+import parser.Parser;
+import parser.SimpleNode;
 
 public class Compilador {
 
@@ -56,6 +63,27 @@ public class Compilador {
 			console += e.getMessage();
 			return ERRO;
 		}
+	}
+	
+	public String printAst() {
+		try {
+			ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
+		    PrintStream printer = new PrintStream(byteArray);
+		    
+		    System.out.flush();
+		    System.setOut(printer);
+		    
+		    arvoreSemantica.dump("");
+		    
+			return byteArray.toString("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			console = "Erro ao processar árvore semântica.";
+			return e.getMessage();
+		}
+	}
+	
+	public void analiseSemantica() {
+		
 	}
 	
 	public String getConsole() {
