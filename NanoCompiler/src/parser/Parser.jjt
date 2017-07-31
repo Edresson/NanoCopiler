@@ -86,34 +86,13 @@ TOKEN : /* PALAVRAS RESERVADAS */
 | < WRITE : "write" >
 }
 
-TOKEN:
-{
-  < ASPAS : "\"" > : STRING_STATE
-}
-
-< STRING_STATE > MORE:
-{
-  "\\" : ESC_STATE
-}
-
-< STRING_STATE > TOKEN:
-{
-  < FECHA_ASPAS : < ASPAS > > : DEFAULT
-| < CHAR : ~["\"","\\"] >
-}
-
-<ESC_STATE> TOKEN:
-{
-  < CNTRL_ESC:["\"","\\","/","b","f","n","r","t"] > : STRING_STATE
-}
-
-TOKEN : /* EXPRESSÕES REGULAR */
+TOKEN : /* EXPRESSï¿½ES REGULAR */
 {
   < #DIGITO : ["0"-"9"] >
 | < #LETRA  : ["a"-"z","A"-"Z"]  >
 | < NUMERO 	: (< DIGITO >)+ >
 | < IDENTIFICADOR : (< LETRA > | "_")( < LETRA > | "_" | < DIGITO > )* >
-
+| < STRING_LITERAL: "\"" (~["\"", "\\"] | "\\\"" | "\\\\")* "\"" > 
 }
 
 SimpleNode program() :
@@ -344,10 +323,11 @@ void restoArgumentosLinha() :
 }
 
 void literal() :
-{ Token num; Token id; }
+{ Token num; Token id; Token str; }
 {
   num = < NUMERO > { jjtThis.value = num.image; }
 | id = < IDENTIFICADOR > { jjtThis.value = id.image; } chamaFuncao()
+| str = < STRING_LITERAL > { jjtThis.value = str.image; }
 | < TRUE >
 | < FALSE >
 }

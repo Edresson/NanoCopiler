@@ -26,7 +26,7 @@ public class AnalisadorSemantico {
 		return node.jjtGetValue() != null;
 	}
 	
-	public static void analiseSemantica(SimpleNode node) {
+	public void analiseSemantica(SimpleNode node) {
 		System.out.println(ParserTreeConstants.jjtNodeName[node.getId()] + " ");
 		
 		if (node == null || node.jjtGetNumChildren() < 1)
@@ -37,7 +37,7 @@ public class AnalisadorSemantico {
 			analiseSemantica(simpleChildNode);
 		}
 		
-		// TODO faltando implementar procedimento, expressao e variavel
+		
 		if (JJTCHAMADAIF == node.getId()) {
 			
 		} else if (JJTCHAMADAWHILE == node.getId()) {
@@ -53,7 +53,5 @@ public class AnalisadorSemantico {
 		} else if (JJTEXP == node.getId()) {
 			//TODO
 		}
- 		
 	}
-	
 }
