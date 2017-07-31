@@ -28,6 +28,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
+import javax.swing.UIManager;
 
 public class Editor extends JFrame {
 
@@ -108,7 +109,7 @@ public class Editor extends JFrame {
 		
 		JScrollPane scrollPane_1 = new JScrollPane();
 		scrollPane_1.setViewportBorder(new TitledBorder(null, "Console", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		scrollPane_1.setBounds(420, 45, 354, 336);
+		scrollPane_1.setBounds(420, 45, 354, 269);
 		contentPane.add(scrollPane_1);
 		
 		console = new JTextPane();
@@ -117,9 +118,9 @@ public class Editor extends JFrame {
 		console.setEditable(false);
 		
 		JScrollPane scrollPane_2 = new JScrollPane();
-		scrollPane_2.setViewportBorder(new TitledBorder(null, "Tokens", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		scrollPane_2.setViewportBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "\u00C1rvore", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		scrollPane_2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane_2.setBounds(420, 392, 354, 158);
+		scrollPane_2.setBounds(420, 325, 354, 225);
 		contentPane.add(scrollPane_2);
 		
 		textAreaTokens = new JTextPane();

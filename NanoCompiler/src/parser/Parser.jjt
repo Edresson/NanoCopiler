@@ -10,7 +10,6 @@ PARSER_BEGIN(Parser)
 package parser;
 
 import java.util.List;
-import front.Tok;
 
 public class Parser {
 
@@ -34,7 +33,7 @@ SKIP :
 | <"//" (~["\n","\r"])* ("\n"|"\r")>
 }
 
-TOKEN : /* OPERATORS */
+TOKEN : /* OPERADORES */
 {
   < APARENT : "(" >
 | < FPARENT : ")" >
@@ -87,7 +86,28 @@ TOKEN : /* PALAVRAS RESERVADAS */
 | < WRITE : "write" >
 }
 
-TOKEN : /* EXPRESSÕES REGULARES */
+TOKEN:
+{
+  < ASPAS : "\"" > : STRING_STATE
+}
+
+< STRING_STATE > MORE:
+{
+  "\\" : ESC_STATE
+}
+
+< STRING_STATE > TOKEN:
+{
+  < FECHA_ASPAS : < ASPAS > > : DEFAULT
+| < CHAR : ~["\"","\\"] >
+}
+
+<ESC_STATE> TOKEN:
+{
+  < CNTRL_ESC:["\"","\\","/","b","f","n","r","t"] > : STRING_STATE
+}
+
+TOKEN : /* EXPRESSÕES REGULAR */
 {
   < #DIGITO : ["0"-"9"] >
 | < #LETRA  : ["a"-"z","A"-"Z"]  >
@@ -103,9 +123,9 @@ SimpleNode program() :
 }
 
 void decSeqList() :
-{}
+{ Token id; }
 {
-  type() IDENTIFICADOR() decSeq() 
+  type() id = < IDENTIFICADOR > { jjtThis.value = id.image; } decSeq() 
 | decProcedimento()
 }
 
@@ -117,29 +137,29 @@ void decSeq() :
 }
 
 void decProcedimento() :
-{}
+{ Token id; }
 {
-  IDENTIFICADOR() decFuncao() 
+  id = < IDENTIFICADOR > { jjtThis.value = id.image; } decFuncao() 
 }
 
 void decFuncao() :
 {}
 {
-  APARENT() listaParametros() FPARENT() ACHAVE() bloco() FCHAVE()
+  < APARENT > listaParametros() < FPARENT > < ACHAVE > bloco() < FCHAVE >
 }
 
 void decVar() :
 {}
 {
-  dec() PTOVIRGULA()
+  dec() < PTOVIRGULA >
 }
 
 void dec() :
-{}
+{ Token num; Token id; }
 {
   atribuicao()
-| ACOLCH() NUMERO() FCOLCH() decLinha()
-| VIRGULA() IDENTIFICADOR() dec()
+| < ACOLCH > num = < NUMERO > { jjtThis.value = num.image; } < FCOLCH > decLinha()
+| < VIRGULA > id = < IDENTIFICADOR > { jjtThis.value = id.image; } dec()
 | empty()
 }
 
@@ -153,42 +173,42 @@ void decLinha() :
 void atribuicao() :
 {}
 {
-  ATRIBUICAO() literal() dec()
+  < ATRIBUICAO > literal() dec()
 }
 
 void listaParametros() :
-{}
+{ Token id; }
 {
-  type() IDENTIFICADOR() restoParametros()
+  type() id = < IDENTIFICADOR > { jjtThis.value = id.image; } restoParametros()
 | empty()
 }
 
 void restoParametros() :
-{}
+{ Token id; }
 {
- VIRGULA() type() IDENTIFICADOR() restoParametros()
+ < VIRGULA > type() id = < IDENTIFICADOR > { jjtThis.value = id.image; } restoParametros()
 | listaParametros()
 }
 
 void type() :
 {}
 {
-  INT()
-| STRING()
-| BOOL()
+  < INT >
+| < STRING >
+| < BOOL >
 }
 
 void bloco() :
-{}
+{ Token id; }
 {
-  type() IDENTIFICADOR() decVar() listaEstado()
+  type() id = < IDENTIFICADOR > { jjtThis.value = id.image; } decVar() listaEstado()
 | listaEstado()
 }
 
 void listaEstado() :
-{}
+{ Token id; }
 {
-  IDENTIFICADOR() subRotinaAtribuicao()
+  id = < IDENTIFICADOR > { jjtThis.value = id.image; } subRotinaAtribuicao()
 | chamadaIf()
 | chamadaWhile()
 | chamadaFor()
@@ -202,134 +222,134 @@ void listaEstado() :
 void subRotinaAtribuicao() :
 {}
 {
-  chamadaSubRotina() PTOVIRGULA()
-| chamadaAtribuicao() PTOVIRGULA()
+  chamadaSubRotina() < PTOVIRGULA >
+| chamadaAtribuicao() < PTOVIRGULA >
 }
 
 void chamadaRead() :
 {}
 {
-  READ() var() PTOVIRGULA()
+  < READ > var() < PTOVIRGULA >
 }
 
 void var() :
-{}
+{ Token id; }
 {
-  IDENTIFICADOR() varLinha()
+  id = < IDENTIFICADOR > { jjtThis.value = id.image; } varLinha()
 }
 
 void varLinha() :
 {}
 {
-  ACOLCH() exp() FCOLCH()
+  < ACOLCH > exp() < FCOLCH >
 | empty()
 }
 
 void chamadaWrite() :
 {}
 {
-  WRITE() listaArgumento() PTOVIRGULA()
+  < WRITE > listaArgumento() < PTOVIRGULA >
 }
 
 void chamadaReturn() :
 {}
 {
-  RETURN() chamadaReturnLinha()
+  < RETURN > chamadaReturnLinha()
 }
 
 void chamadaReturnLinha() :
 {}
 {
-  PTOVIRGULA()
-| exp() PTOVIRGULA()
+  < PTOVIRGULA >
+| exp() < PTOVIRGULA >
 }
 
 void chamadaBreak() :
 {}
 {
-  BREAK() PTOVIRGULA()
+  < BREAK > < PTOVIRGULA >
 }
 
 void chamadaFor() :
-{}
+{ Token id; }
 {
-  FOR() APARENT() IDENTIFICADOR() chamadaAtribuicao() PTOVIRGULA() exp() PTOVIRGULA() IDENTIFICADOR() chamadaAtribuicao() FPARENT() ACHAVE() bloco() FCHAVE()
+  < FOR > < APARENT > id = < IDENTIFICADOR > { jjtThis.value = id.image; } chamadaAtribuicao() < PTOVIRGULA > exp() < PTOVIRGULA > id = < IDENTIFICADOR > { jjtThis.value = id.image; } chamadaAtribuicao() < FPARENT > < ACHAVE > bloco() < FCHAVE >
 }
 
 void chamadaWhile() :
 {}
 {
-  WHILE() APARENT() exp() FPARENT() ACHAVE() bloco() FCHAVE()
+  < WHILE > < APARENT > exp() < FPARENT > < ACHAVE > bloco() < FCHAVE >
 }
 
 void chamadaIf() :
 {}
 {
-  IF() APARENT() exp() FPARENT() ACHAVE() bloco() FCHAVE() chamadaIfLinha()
+  < IF > < APARENT > exp() < FPARENT > < ACHAVE > bloco() < FCHAVE > chamadaIfLinha()
 }
 
 void chamadaIfLinha() :
 {}
 {
-  ELSE() ACHAVE() bloco() FCHAVE()
+  < ELSE > < ACHAVE > bloco() < FCHAVE >
 | empty()
 }
 
 void chamadaSubRotina() :
 {}
 {
-  APARENT() listaArgumento() FPARENT() 
+  < APARENT > listaArgumento() < FPARENT > 
 }
 
 void chamadaAtribuicao() :
 {}
 {
-  ATRIBUICAO() exp()
-| ATRIBUICAO_SOMA() exp()
-| ATRIBUICAO_SUB() exp()
-| ATRIBUICAO_MUL() exp()
-| ATRIBUICAO_DIV() exp()
-| MOD() exp()
+  < ATRIBUICAO > exp()
+| < ATRIBUICAO_SOMA > exp()
+| < ATRIBUICAO_SUB > exp()
+| < ATRIBUICAO_MUL > exp()
+| < ATRIBUICAO_DIV > exp()
+| < MOD > exp()
 }
 
 void exp() :
 {}
 {
   literal() expLinha()
-| NOT() exp() expLinha()
-| SUB() exp() expLinha()
-| APARENT() exp() FPARENT() expLinha()
+| < NOT > exp() expLinha()
+| < SUB > exp() expLinha()
+| < APARENT > exp() < FPARENT > expLinha()
 }
 
 void listaArgumento() :
-{}
+{ Token num; Token id; }
 {
-  IDENTIFICADOR() restoArgumentos()
-| NUMERO() restoArgumentos()
+  id = < IDENTIFICADOR > { jjtThis.value = id.image; } restoArgumentos()
+| num = < NUMERO > { jjtThis.value = num.image; } restoArgumentos()
 | empty()
 }
 
 void restoArgumentos() :
 {}
 {
-  VIRGULA() restoArgumentosLinha()
+  < VIRGULA > restoArgumentosLinha()
 | listaArgumento()
 }
 
 void restoArgumentosLinha() :
-{}
+{ Token num; Token id; }
 {
-  IDENTIFICADOR() restoArgumentos()
-| NUMERO() restoArgumentos()
+  id = < IDENTIFICADOR > { jjtThis.value = id.image; } restoArgumentos()
+| num = < NUMERO > { jjtThis.value = num.image; } restoArgumentos()
 }
 
 void literal() :
-{}
+{ Token num; Token id; }
 {
-  NUMERO()
-| IDENTIFICADOR() chamaFuncao()
-| TRUE()
-| FALSE()
+  num = < NUMERO > { jjtThis.value = num.image; }
+| id = < IDENTIFICADOR > { jjtThis.value = id.image; } chamaFuncao()
+| < TRUE >
+| < FALSE >
 }
 
 void chamaFuncao() :
@@ -342,20 +362,20 @@ void chamaFuncao() :
 void expLinha() :
 { }
 {
-  SOMA() exp() expLinha() 
-| SUB() exp() expLinha()
-| MUL() exp() expLinha()
-| DIV() exp() expLinha()
-| RESTO() exp() expLinha()
-| IGUAL() exp() expLinha()
-| DIFERENTE() exp() expLinha()
-| MAIORIGUAL() exp() expLinha()
-| MENORIGUAL() exp() expLinha()
-| MAIOR() exp() expLinha()
-| MENOR() exp() expLinha()
-| OR() exp() expLinha()
-| AND() exp() expLinha()
-| TERN_ENTAO() exp() TERN_SENAO() exp() expLinha()
+  < SOMA > exp() expLinha() 
+| < SUB > exp() expLinha()
+| < MUL > exp() expLinha()
+| < DIV > exp() expLinha()
+| < RESTO > exp() expLinha()
+| < IGUAL > exp() expLinha()
+| < DIFERENTE > exp() expLinha()
+| < MAIORIGUAL > exp() expLinha()
+| < MENORIGUAL > exp() expLinha()
+| < MAIOR > exp() expLinha()
+| < MENOR > exp() expLinha()
+| < OR > exp() expLinha()
+| < AND > exp() expLinha()
+| < TERN_ENTAO > exp() < TERN_SENAO > exp() expLinha()
 | empty()
 }
 
@@ -363,100 +383,4 @@ void empty() :
 {}
 {
   {}
-}
-
-void APARENT() 			: {} { < APARENT > }
-void FPARENT() 			: {} { < FPARENT > }
-void ACOLCH() 			: {} { < ACOLCH > } 
-void FCOLCH() 			: {} { < FCOLCH > } 
-void ACHAVE() 			: {} { < ACHAVE > } 
-void FCHAVE() 			: {} { < FCHAVE > } 
-void VIRGULA() 			: {} { < VIRGULA > } 
-void PTOVIRGULA() 		: {} { < PTOVIRGULA > } 
-void SOMA() 			: {} { < SOMA > } 
-void SUB() 				: {} { < SUB > } 
-void MUL() 				: {} { < MUL > } 
-void DIV() 				: {} { < DIV > } 
-void IGUAL() 			: {} { < IGUAL > } 
-void DIFERENTE() 		: {} { < DIFERENTE > } 
-void MAIOR() 			: {} { < MAIOR > } 
-void MAIORIGUAL() 		: {} { < MAIORIGUAL > } 
-void MENOR() 			: {} { < MENOR > } 
-void MENORIGUAL() 		: {} { < MENORIGUAL > }
-void OR() 				: {} { < OR > } 
-void AND() 				: {} { < AND > } 
-void NOT() 				: {} { < NOT > } 
-void ATRIBUICAO() 		: {} { < ATRIBUICAO > } 
-void ATRIBUICAO_SOMA() 	: {} { < ATRIBUICAO_SOMA > } 
-void ATRIBUICAO_SUB() 	: {} { < ATRIBUICAO_SUB > } 
-void ATRIBUICAO_MUL() 	: {} { < ATRIBUICAO_MUL > } 
-void ATRIBUICAO_DIV() 	: {} { < ATRIBUICAO_DIV > } 
-void MOD() 				: {} { < MOD > } 
-void TERN_ENTAO() 		: {} { < TERN_ENTAO > } 
-void TERN_SENAO() 		: {} { < TERN_SENAO > } 
-void INT() 				: {} { < INT > }
-void BOOL() 			: {} { < BOOL > } 
-void TRUE() 			: {} { < TRUE > } 
-void FALSE() 			: {} { < FALSE > }
-void BREAK() 			: {} { < BREAK > }
-void FOR() 				: {} { < FOR > }
-void WHILE() 			: {} { < WHILE > } 
-void RETURN() 			: {} { < RETURN > } 
-void IF() 				: {} { < IF > } 
-void ELSE() 			: {} { < ELSE > } 
-void RESTO() 			: {} { < RESTO > } 
-void READ() 			: {} { < READ > } 
-void WRITE() 			: {} { < WRITE > } 
-void STRING() 			: { Token str; } { str = < STRING > { jjtThis.value = str.image; } }
-void NUMERO() 			: { Token num; } { num = < NUMERO > { jjtThis.value = num.image; } }
-void IDENTIFICADOR() 	: { Token id;  } { id = < IDENTIFICADOR > { jjtThis.value = id.image; } } 
-
-Tok teste_lexico() :
-{}
-{
-  APARENT() { return Tok.APARENT; }
-| FPARENT() { return Tok.FPARENT; }
-| ACOLCH() { return Tok.ACOLCH; }
-| FCOLCH() { return Tok.FCOLCH; }
-| ACHAVE() { return Tok.ACHAVE; }
-| FCHAVE() { return Tok.FCHAVE; }
-| VIRGULA() { return Tok.VIRGULA; }
-| PTOVIRGULA() { return Tok.PTOVIRGULA; }
-| SOMA() { return Tok.SOMA; }
-| SUB() { return Tok.SUB; }
-| MUL() { return Tok.MUL; }
-| DIV() { return Tok.DIV; }
-| IGUAL() { return Tok.IGUAL; }
-| DIFERENTE() { return Tok.DIFERENTE; }
-| MAIOR() { return Tok.MAIOR; }
-| MAIORIGUAL() { return Tok.MAIORIGUAL; }
-| MENOR() { return Tok.MENOR; }
-| MENORIGUAL() { return Tok.MENORIGUAL; }
-| OR() { return Tok.OR; }
-| AND() { return Tok.AND; }
-| NOT() { return Tok.NOT; }
-| ATRIBUICAO() { return Tok.ATRIBUICAO; }
-| ATRIBUICAO_SOMA() { return Tok.ATRIBUICAO_SOMA; }
-| ATRIBUICAO_SUB() { return Tok.ATRIBUICAO_SUB; }
-| ATRIBUICAO_MUL() { return Tok.ATRIBUICAO_MUL; }
-| ATRIBUICAO_DIV() { return Tok.ATRIBUICAO_DIV; }
-| MOD() { return Tok.MOD; }
-| TERN_ENTAO() { return Tok.TERN_ENTAO; }
-| TERN_SENAO() { return Tok.TERN_SENAO; }
-| INT() { return Tok.INT; }
-| BOOL() { return Tok.BOOL; }
-| TRUE() { return Tok.TRUE; }
-| FALSE() { return Tok.FALSE; }
-| BREAK() { return Tok.BREAK; }
-| FOR() { return Tok.FOR; }
-| WHILE() { return Tok.WHILE; }
-| RETURN() { return Tok.RETURN; }
-| IF() { return Tok.IF; }
-| ELSE() { return Tok.ELSE; }
-| RESTO() { return Tok.RESTO; }
-| READ() { return Tok.READ; }
-| WRITE() { return Tok.WRITE; }
-| NUMERO() { return Tok.NUMERO; }
-| STRING() { return Tok.STRING; }
-| IDENTIFICADOR() { return Tok.IDENTIFICADOR; }
 }

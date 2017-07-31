@@ -4,7 +4,6 @@ import static org.apache.commons.io.IOUtils.toInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
@@ -75,15 +74,13 @@ public class Compilador {
 		    
 		    arvoreSemantica.dump("");
 		    
+//		    analiseSemantica(arvoreSemantica);
+		    
 			return byteArray.toString("UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			console = "Erro ao processar árvore semântica.";
 			return e.getMessage();
 		}
-	}
-	
-	public void analiseSemantica() {
-		
 	}
 	
 	public String getConsole() {
